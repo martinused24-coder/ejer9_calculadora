@@ -1,0 +1,41 @@
+
+name: Calculadora Java
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Compilar programa
+        run: |
+          mkdir -p build/classes
+          javac -d build/classes src/*.java
+
+      - name: Ejecutar tests
+        run: |
+          java -ea -cp build/classes CalculadoraTest
+
+      - name: Crear ejecutable JAR
+        run: |
+          jar --create --file build/calculadora.jar --main-class Calculadora -C build/classes .
+
+      - name: Subir artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculadora-java
+          path: build/calculadora.jar
